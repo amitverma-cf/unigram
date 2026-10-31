@@ -1,30 +1,49 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:unigram/data/progress_store.dart';
+import 'package:unigram/data/question_repository.dart';
+import 'package:unigram/main.dart';
+import 'package:unigram/state/progress.dart';
 
-import 'package:instagram_redesign/main.dart';
+class MemStore implements ProgressStore {
+  Map<String, Object> d = {
+    'xp': 0,
+    'correct': 0,
+    'answered': 0,
+    'streak': 0,
+    'lastDay': '',
+  };
+  @override
+  Future<Map<String, Object>> load() async => Map.of(d);
+  @override
+  Future<void> save(Map<String, Object> data) async => d = data;
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  test('streak increments daily and combo adds bonus XP', () {
+    var now = DateTime(2026, 1, 1);
+    final p = Progress(MemStore(), clock: () => now);
+    expect(p.record(isCorrect: true), 10);
+    expect(p.record(isCorrect: true), 12);
+    expect(p.dayStreak, 1);
+    now = DateTime(2026, 1, 2);
+    p.record(isCorrect: false);
+    expect(p.dayStreak, 2);
+    expect(p.combo, 0);
+    now = DateTime(2026, 1, 5);
+    p.record(isCorrect: true);
+    expect(p.dayStreak, 1);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('answering a question shows feedback', (t) async {
+    final p = Progress(MemStore());
+    await t.pumpWidget(
+      UnigramApp(repository: MockQuestionRepository(), progress: p),
+    );
+    await t.pumpAndSettle();
+    await t.tap(find.byType(InkWell).last);
+    await t.pumpAndSettle();
+    expect(p.answered, 1);
+    expect(find.textContaining('Swipe up for the next one'), findsOneWidget);
   });
 }
