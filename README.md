@@ -1,36 +1,37 @@
-# Instagram Redesigned Flutter App
+# Unigram
 
-A Redesigned Instagram UI using Flutter. <br>
-[Check the video recording of the app here](https://www.instagram.com/p/CFpJmgyDcu3)
+TikTok-style learning. Swipe up through a vertical feed where every card is a
+quiz question you actually answer: instant feedback, an explanation, XP,
+combos and a daily streak.
 
-## Design Inspiration
+## Features
+- Full-screen vertical swipe feed of multiple-choice questions
+- Right/wrong feedback with explanations
+- XP (with combo bonus), accuracy, daily streak, persisted locally
+- Endless feed: more questions load as you near the end
+- Backend-agnostic: UI depends only on `QuestionRepository` and `ProgressStore`
 
-All design credit goes to [Manuel Rovira](https://dribbble.com/ManuelRovira) 
-for making this lovely [design.](https://dribbble.com/shots/14057207-Instagram-Redesign-Part-2)
+## Structure
+```
+lib/
+  models/    Question
+  data/      QuestionRepository, ProgressStore, mock questions
+  state/     Progress (XP, streak, combo)
+  screens/   FeedScreen
+  widgets/   QuestionCard, StatsBar
+```
 
-![Instagram Design](https://static.dribbble.com/users/1612753/screenshots/14057207/media/d7313500e0759e5da3198a220d483ea1.png)
+## Run
+```
+flutter pub get
+flutter run        # or: flutter run -d chrome
+flutter test
+```
 
-## Results
+## Backend roadmap
+Planned: Supabase (Postgres + auth + storage). Implement `QuestionRepository`
+and `ProgressStore` against it and swap them in `lib/main.dart`; no UI changes
+needed. Suggested tables: `topics`, `questions`, `profiles`, `answers`.
 
-![Result](https://raw.githubusercontent.com/amitverma-cf/flutter_instagram_redesign/stable/assets/app_ss/120241234-335008197936766-667811.gif)
-
-
-## Screenshots
-
-<p align="center">
-<img src="./assets/app_ss/1.jpeg" height="560" hspace="30">
-<img src="./assets/app_ss/2.jpeg" height="560" hspace="30">
-<br><br><br>
-<img src="./assets/app_ss/3.jpeg" height="560" hspace="30">
-<img src="./assets/app_ss/4.jpeg" height="560" hspace="30">
-</p>
-
-## Support
-
-![Amit Verma](https://github.com/amitverma-cf) <br>
-[Instagram](https://www.instagram.com/amve.me) <br>
-[LinkedIn](https://www.linkedin.com/in/amit-verma-211285288/)
-
-> If you found this project helpful or you learned something from the source code and want to thank me, consider buying me a cup of :coffee:
->
-> * UPI ID - av.amit2040fw@okaxis
+## License
+MIT

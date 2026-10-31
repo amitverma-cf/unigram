@@ -1,23 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:instagram_redesign/ui/screens/home_screen.dart';
 
-void main() {
-  runApp(MyApp());
+import 'data/progress_store.dart';
+import 'data/question_repository.dart';
+import 'screens/feed_screen.dart';
+import 'state/progress.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final progress = Progress(LocalProgressStore());
+  await progress.load();
+  // Swap MockQuestionRepository for a backend-backed one here.
+  runApp(UnigramApp(repository: MockQuestionRepository(), progress: progress));
 }
 
-class MyApp extends StatelessWidget {
+class UnigramApp extends StatelessWidget {
+  const UnigramApp({
+    super.key,
+    required this.repository,
+    required this.progress,
+  });
+  final QuestionRepository repository;
+  final Progress progress;
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Instagram Redesign',
-      theme: ThemeData(
-        textTheme: GoogleFonts.muliTextTheme(),
-        primarySwatch: Colors.pink,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+  Widget build(BuildContext context) => MaterialApp(
+    title: 'Unigram',
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData.dark(useMaterial3: true).copyWith(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF7C4DFF),
+        brightness: Brightness.dark,
       ),
-      home: HomeScreen(),
-    );
-  }
+    ),
+    home: FeedScreen(repository: repository, progress: progress),
+  );
 }
